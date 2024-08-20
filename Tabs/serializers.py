@@ -1,18 +1,26 @@
 from rest_framework import serializers
-
+from accounts.models import User
 from .models import *
 
+from accounts.serializer import *
 
-class BallotSerializer(serializers.ModelSerializer):
+
+class TabSerializer(serializers.ModelSerializer):
     """
-    Ballot serializer
+    Tab serializer
     """
+    creator = UserSerializer(read_only=True)
      
 
     class Meta:
-        model = Ballots
+        model = Tabs
         fields="__all__"        
 
+    def create(self, validated_data):
+        # Assuming the user is available via context (e.g., request.user)
+        user = self.context['request'].user
+        tab = Tabs.objects.create(creator=user, **validated_data)
+        return tab
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -24,7 +32,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class PollSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Poll
+        model = Polls
         fields = "__all__"
 
 class TopicSerializer(serializers.ModelSerializer):

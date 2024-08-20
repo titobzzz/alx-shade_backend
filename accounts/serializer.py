@@ -14,9 +14,9 @@ class UserRegistrationSerializer(ModelSerializer):
             "full_name",
             "username",
             "email",
-            "password",
             "avatar"
         ]
+       
 
     def create(self, validated_data):
         """
@@ -32,5 +32,5 @@ class UserRegistrationSerializer(ModelSerializer):
 
 class UserSerializer(ModelSerializer):
     class Meta:
-        model= User
-        fields="__all__"
+        model= User   
+        exclude = ['password']

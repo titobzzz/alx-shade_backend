@@ -23,7 +23,7 @@ from django.views.generic import TemplateView
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
-    path("api_schema", get_schema_view(title="API_schema", description="Guide for Ballot project"), name='api_schema'),
+    path("api_schema", get_schema_view(title="API_schema", description="Guide for Post project"), name='api_schema'),
      path(
         "",
         TemplateView.as_view(
@@ -34,5 +34,5 @@ urlpatterns = [
     ),
     path('admin/', admin.site.urls),
      path('accounts/', include('accounts.urls')),
-     path('home/',include('Ballots.urls'))
+     path('home/',include('Tabs.urls'))
 ]

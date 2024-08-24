@@ -27,20 +27,24 @@ class Topics(models.Model):
 
 class Tabs(models.Model):
     '''
-    class for each Tab 
+    Class for each Tab
     '''
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    tag = models.ManyToManyField(Topics, null=True, blank= True)
+    tag = models.ManyToManyField(Topics, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    images= models.ImageField(upload_to="Tabs/post_pictures",blank=True, null=True)
     text_content = models.TextField(max_length=500, null=True, blank=True)
-    video = models.FileField(upload_to='videos_uploaded',null=True,
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+class TabImage(models.Model):
+    tab = models.ForeignKey(Tabs, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="Tabs/post_pictures", blank=True, null=True)
+
+class TabVideo(models.Model):
+    tab = models.ForeignKey(Tabs, related_name='videos', on_delete=models.CASCADE)
+    video = models.FileField(upload_to='videos_uploaded', blank=True, null=True,
           validators=[FileExtensionValidator(allowed_extensions=['MOV','avi','mp4','webm','mkv']), 
           validate_file_size])
-    # reactions= models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
-    updated= models.DateTimeField(auto_now=True) 
-
 
 class Comment(models.Model):
 

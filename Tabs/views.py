@@ -22,8 +22,24 @@ class TabViewSet(viewsets.ModelViewSet):
     serializer_class = TabSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'pk'
-
-    # def get_permsssions(self):
+  
+    def get_permisson(self, request, *args, **kwargs):
+        '''
+        -Permission class for CRUD
+        Restrict permisson to only creators for updates and delete 
+        '''
+        user = self.request.user
+        tab_id = kwargs.get('tab')
+        tab = Tabs.objects.filter(id=tab_id)
+        
+        if self.action in ['delete','update']:
+            if user == tab.creator:
+               return  [permissions.IsAuthenticated, permissions.IsOwner]
+            else:
+                raise  Exception('only creators can edit or delete tabs')
+        return [permissions.IsAuthenticated]
+                
+        
 
 
     def perform_create(self, request, *args, **kwargs):
@@ -34,8 +50,10 @@ class TabViewSet(viewsets.ModelViewSet):
         data['creator'] = userprofile.id
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(creator=self.request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        
 
 
 

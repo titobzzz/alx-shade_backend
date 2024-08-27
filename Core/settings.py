@@ -168,6 +168,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media_files')
+
+
 SIMPLE_JWT={
     "AUTH_HEADER_TYPES":["Bearer"],
     "ACCESS_TOKEN_LIFETIME":datetime.timedelta(days=2),

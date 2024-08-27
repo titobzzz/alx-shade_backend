@@ -4,6 +4,7 @@ import uuid
 from accounts.models import User
 from django.core.validators import FileExtensionValidator
 from custom.validators import validate_file_size
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 
@@ -40,16 +41,31 @@ class Tabs(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-class TabImage(models.Model):
-    tab = models.ForeignKey(Tabs, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="Tabs/post_pictures", blank=True, null=True)
+def upload_to_static(instance, filename):
+    return f'images/{filename}'
 
-class TabVideo(models.Model):
-    tab = models.ForeignKey(Tabs, related_name='videos', on_delete=models.CASCADE)
-    video = models.FileField(upload_to='videos_uploaded', blank=True, null=True,
-          validators=[FileExtensionValidator(allowed_extensions=['MOV','avi','mp4','webm','mkv']), 
-          validate_file_size])
+class TabMedia(models.Model):
+    MEDIA_TYPE_CHOICES = (
+        ('image', 'Image'),
+        ('video', 'Video'),
+    )
+    
+    tab = models.ForeignKey(Tabs, related_name='media', on_delete=models.CASCADE)
+    media_type = models.CharField(max_length=5, choices=MEDIA_TYPE_CHOICES, db_index=True)
+    file = models.FileField(
+        storage=staticfiles_storage,
+        upload_to=upload_to_static,
+        blank=True, 
+        null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'mov', 'avi', 'mp4', 'webm', 'mkv']),
+            validate_file_size
+        ]
+    )
+    duration = models.PositiveIntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.media_type} for {self.tab}"
 class Comment(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)

@@ -23,12 +23,13 @@ class UserRegistrationSerializer(ModelSerializer):
         """
         Create and return a new user instance, properly handling the password.
         """
+        print(validated_data) 
         user = User.objects.create_user(
             email=validated_data["email"],
             username=validated_data["username"],
             password=validated_data["password"]
         )
-        print("serializable")
+        print("serializable",user.username)
         return user
 
 class UserSerializer(ModelSerializer):

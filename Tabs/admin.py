@@ -9,3 +9,5 @@ admin.site.register(Topics)
 admin.site.register(Comment)
 
 admin.site.register(Tabs)
+
+admin.site.register(TabMedia)

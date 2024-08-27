@@ -16,6 +16,8 @@ from .serializers import *
 from custom import custumpermisons
 from rest_framework.exceptions import PermissionDenied
 
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 # Create your views here.
 
@@ -23,6 +25,7 @@ class TabViewSet(viewsets.ModelViewSet):
     queryset = Tabs.objects.all()
     serializer_class = TabSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
     lookup_field = 'pk'
 
     def get_permissions(self):

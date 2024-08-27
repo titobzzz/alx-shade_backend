@@ -10,77 +10,52 @@ class HashTagsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class TabImageSerializer(serializers.ModelSerializer):
+class TabMediaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TabImage
-        fields = ['id', 'image']
-
-class TabVideoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TabVideo
-        fields = ['id', 'video']
-
+        model = TabMedia
+        fields = ['id', 'media_type', 'file']
 
 class TabSerializer(serializers.ModelSerializer):
-    """
-    Tab serializer
-    """
     creator = UserSerializer(read_only=True)
-    images = TabImageSerializer(many=True, required=False)
-    videos = TabVideoSerializer(many=True, required=False)
-     
+    media = TabMediaSerializer(many=True, required=False)
 
     class Meta:
         model = Tabs
-        fields="__all__"        
-    
+        fields = "__all__"
 
     def create(self, validated_data):
-        images_data = validated_data.pop('images', [])
-        videos_data = validated_data.pop('videos', [])
+        media_data = self.context['request'].FILES.getlist('media')
         tags_data = validated_data.pop('tag', [])
-
+        
         user = self.context['request'].user
         tab = Tabs.objects.create(creator=user, **validated_data)
-
+        
         if tags_data:
             tags = [Topics.objects.get_or_create(name=tag['name'])[0] for tag in tags_data]
             tab.tag.set(tags)
-
-        for image_data in images_data:
-            TabImage.objects.create(tab=tab, **image_data)
-
-        for video_data in videos_data:
-            TabVideo.objects.create(tab=tab, **video_data)
-
+        
+        for media_file in media_data:
+            media_type = 'image' if media_file.content_type.startswith('image') else 'video'
+            TabMedia.objects.create(tab=tab, file=media_file, media_type=media_type)
+        
         return tab
-    
+
     def update(self, instance, validated_data):
-        # Update logic for images, videos, and tags
-        images_data = validated_data.pop('images', [])
-        videos_data = validated_data.pop('videos', [])
+        media_data = validated_data.pop('media', [])
         tags_data = validated_data.pop('tag', [])
 
-        # Update the Tab instance
         instance.text_content = validated_data.get('text_content', instance.text_content)
         instance.save()
 
-        # Update tags
         tags = []
         for tag_name in tags_data:
             tag, created = Topics.objects.get_or_create(name=tag_name)
             tags.append(tag)
         instance.tag.set(tags)
 
-        # Update images
-        instance.images.all().delete()
-        for image_data in images_data:
-            TabImage.objects.create(tab=instance, **image_data)
-
-        # Update videos
-        instance.videos.all().delete()
-        for video_data in videos_data:
-            TabVideo.objects.create(tab=instance, **video_data)
+        instance.media.all().delete()
+        for media_item in media_data:
+            TabMedia.objects.create(tab=instance, **media_item)
 
         return instance
 

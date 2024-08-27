@@ -14,7 +14,8 @@ class UserRegistrationSerializer(ModelSerializer):
             "full_name",
             "username",
             "email",
-            "avatar"
+            "avatar",
+            "password"
         ]
        
 

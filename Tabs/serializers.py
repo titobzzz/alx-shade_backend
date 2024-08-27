@@ -4,8 +4,10 @@ from .models import *
 
 from accounts.serializer import *
 
-
-
+class HashTagsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Topics
+        fields = ['id', 'name']
 
 
 class TabImageSerializer(serializers.ModelSerializer):
@@ -32,41 +34,51 @@ class TabSerializer(serializers.ModelSerializer):
         model = Tabs
         fields="__all__"        
     
+
     def create(self, validated_data):
-        # Extract nested data for images and videos
         images_data = validated_data.pop('images', [])
         videos_data = validated_data.pop('videos', [])
+        tags_data = validated_data.pop('tag', [])
 
-        # Create the Tab instance
         user = self.context['request'].user
         tab = Tabs.objects.create(creator=user, **validated_data)
 
-        # Create related images
+        if tags_data:
+            tags = [Topics.objects.get_or_create(name=tag['name'])[0] for tag in tags_data]
+            tab.tag.set(tags)
+
         for image_data in images_data:
             TabImage.objects.create(tab=tab, **image_data)
 
-        # Create related videos
         for video_data in videos_data:
             TabVideo.objects.create(tab=tab, **video_data)
 
         return tab
-
+    
     def update(self, instance, validated_data):
-        # Update logic for images and videos
+        # Update logic for images, videos, and tags
         images_data = validated_data.pop('images', [])
         videos_data = validated_data.pop('videos', [])
+        tags_data = validated_data.pop('tag', [])
 
         # Update the Tab instance
         instance.text_content = validated_data.get('text_content', instance.text_content)
         instance.save()
+
+        # Update tags
+        tags = []
+        for tag_name in tags_data:
+            tag, created = Topics.objects.get_or_create(name=tag_name)
+            tags.append(tag)
+        instance.tag.set(tags)
 
         # Update images
         instance.images.all().delete()
         for image_data in images_data:
             TabImage.objects.create(tab=instance, **image_data)
 
-      
-        instance.videos.all().delete()  
+        # Update videos
+        instance.videos.all().delete()
         for video_data in videos_data:
             TabVideo.objects.create(tab=instance, **video_data)
 

@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG')
+DEBUG = True
 
 
 if DEBUG == True: 
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
+    'corsheaders',
 
     #third party apps
     "rest_framework_simplejwt",
@@ -72,8 +73,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True 
 ROOT_URLCONF = 'Core.urls'
 
 TEMPLATES = [
@@ -158,9 +160,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Directory where static files are collected
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Additional directories where static files are located
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 SIMPLE_JWT={
     "AUTH_HEADER_TYPES":["Bearer"],
-    "ACCESS_TOKEN_LIFETIME":datetime.timedelta(minutes=5),
-    "ACCESS_TOKEN_LIFETIME":datetime.timedelta(minutes=30)
+    "ACCESS_TOKEN_LIFETIME":datetime.timedelta(days=2),
+    "REFRESH_TOKEN_LIFETIME":datetime.timedelta(days=30)
 }

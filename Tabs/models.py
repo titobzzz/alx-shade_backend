@@ -23,14 +23,18 @@ class Topics(models.Model):
     def __str__(self) -> str:
         return f"This is the {self.name} trend or tag"
 
+class HashTags(models.Model):
+    name = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        return self.nam
 
 class Tabs(models.Model):
     '''
     Class for each Tab
     '''
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    tag = models.ManyToManyField(Topics, blank=True)
+    tag = models.ManyToManyField(HashTags, blank=True,related_name='tabs')
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     text_content = models.TextField(max_length=500, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)

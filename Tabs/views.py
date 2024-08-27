@@ -13,48 +13,34 @@ from .models  import *
 
 from .serializers import *
 
+from custom import custumpermisons
+from rest_framework.exceptions import PermissionDenied
+
 
 # Create your views here.
 
 class TabViewSet(viewsets.ModelViewSet):
-
-    queryset= Tabs.objects.all()
+    queryset = Tabs.objects.all()
     serializer_class = TabSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'pk'
-  
-    def get_permisson(self, request, *args, **kwargs):
+
+    def get_permissions(self):
         '''
-        -Permission class for CRUD
-        Restrict permisson to only creators for updates and delete 
+        Permission class for CRUD
+        Restrict permission to only creators for updates and delete 
         '''
         user = self.request.user
-        tab_id = kwargs.get('tab')
-        tab = Tabs.objects.filter(id=tab_id)
+        tab_id = self.kwargs.get('pk')  
+        tab = Tabs.objects.filter(id=tab_id).first()
         
-        if self.action in ['delete','update']:
-            if user == tab.creator:
-               return  [permissions.IsAuthenticated, permissions.IsOwner]
+        if self.action in ['destroy', 'update']: 
+            if tab and user == tab.creator:
+                return [permissions.IsAuthenticated(),  custumpermisons.IsOwner()]
             else:
-                raise  Exception('only creators can edit or delete tabs')
-        return [permissions.IsAuthenticated]
-                
+                raise PermissionDenied('Only creators can edit or delete tabs')
         
-
-
-    def perform_create(self, request, *args, **kwargs):
-        user = self.request.user
-        userprofile = User.objects.get(id=user.id)
-
-        data = request.data.copy()
-        data['creator'] = userprofile.id
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(creator=self.request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        
-
+        return [permissions.IsAuthenticated()]
 
 
 

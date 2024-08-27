@@ -10,8 +10,8 @@ from . import views
 
 
 urlpatterns =[
-    path('tabs/',views.TabViewSet.as_view({"get":"list","post":"perform_create"}),name="Tabs"),
-    path('tabs/<str:pk>/', views.TabViewSet.as_view({"get": "retrieve", "patch": "update", "delete": "destroy"}), name="Tab"),  
+   path('tabs/', views.TabViewSet.as_view({'get': 'list', 'post': 'create'}), name="Tabs"),
+    path('tabs/<str:pk>/', views.TabViewSet.as_view({"get": "retrieve", "patch": "update", "put":"update","delete": "destroy"}), name="Tab"),  
     path('tabs/<str:tab_id>/comments/',views.CommentViewSet.as_view({"get":"list","post":"create"}),name="comments"),
     path('tabs/<str:tab_id>/comments/<str:pk>/',views.CommentViewSet.as_view({"get":"retrieve","patch":"update","delete":"delete"}),name="retrive-comments"),
     path('tabs/<str:tab_id>/polls/',views.PollsViewSet.as_view({"get":"list","post":"create"}), name="polls"),

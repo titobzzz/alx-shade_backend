@@ -8,7 +8,7 @@ class UserAuthenticationTest(APITestCase):
         self.user = User.objects.create_user(email="testuser@example.com", password="testpassword123")
 
     def test_user_login(self):
-        url = reverse('token_obtain_pair')  # Assuming the URL name is 'token_obtain_pair'
+        url = reverse('accounts/auth/login')  
         data = {
             "email": self.user.email,
             "password": "testpassword123"
